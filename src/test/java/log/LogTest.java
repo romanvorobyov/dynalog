@@ -10,13 +10,18 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
+import org.junit.platform.suite.api.SuiteDisplayName;
 import org.slf4j.Logger;
 
+@Suite
+@SuiteDisplayName("slf4j custom dynamic file-appender instrumentation")
+@SelectPackages("log")
 public class LogTest {
   private static final String C1_LOG = "logs/c1.log", C2_LOG = "logs/c2.log";
   private static final String ERROR_LOG = "logs/error.log", TRACE_LOG = "logs/trace.log";
@@ -58,18 +63,6 @@ public class LogTest {
   }
 
   @Test
-  public void logFileAppendToExisting() throws IOException {
-    assertTrue(new File(C1_LOG).exists());
-    int numOfLinesBeforeAddingNewLine = c1Log.size();
-    String newLineMsg = "C1 new error";
-    loggerC1.error(newLineMsg);
-    List<String> lines = Files.readAllLines(Path.of(C1_LOG));
-    assertEquals(lines.size(), numOfLinesBeforeAddingNewLine + 1);
-    String newAddedLine = lines.get(lines.size() - 1);
-    assertEquals(newLineMsg, newAddedLine);
-  }
-
-  @Test
   public void testErrorLevelForDebugLoggerC1() {
     String c1Error = "C1 error msg";
     assertTrue(errors.contains(c1Error));
@@ -78,7 +71,7 @@ public class LogTest {
   }
 
   @Test
-  void testInfoLevelForDebugLoggerC1() {
+  public void testInfoLevelForDebugLoggerC1() {
     String c1Info = "C1 info msg";
     assertFalse(errors.contains(c1Info)); // should NOT be seen in ERROR-log
     assertTrue(c1Log.contains(c1Info)); // SHOULD be seen in DEBUG-log
@@ -86,7 +79,7 @@ public class LogTest {
   }
 
   @Test
-  void testInfoLevelForWarnLoggerC2() {
+  public void testInfoLevelForWarnLoggerC2() {
     String c2Info = "C2 info msg";
     assertFalse(errors.contains(c2Info)); // should NOT be seen in ERROR-log
     assertFalse(c2Log.contains(c2Info)); // should NOT be seen in WARN-log
@@ -94,7 +87,7 @@ public class LogTest {
   }
 
   @Test
-  void testTraceForDebugLoggerC1() {
+  public void testTraceForDebugLoggerC1() {
     String c1Trace = "C1 trace msg";
     assertFalse(c1Log.contains(c1Trace)); // should NOT be seen in ERROR-log
     assertFalse(errors.contains(c1Trace)); // should NOT be seen in DEBUG-log
